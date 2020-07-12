@@ -1,5 +1,5 @@
 from django.db import models
-from datetime import datetime
+import datetime
 import re
 
 # Create your models here.
@@ -22,11 +22,12 @@ class UserManager(models.Manager):
             errors['birth_date'] = "Birth date is required."
         else:        
             today = datetime.date.today()
-            birthday = datetime.strptime(postData['birth_date'],'%Y-%m-%d')
-            years = birthday.year - today.year
+            birthday = datetime.datetime.strptime(postData['birth_date'],'%Y-%m-%d')
+            years = today.year - birthday.year
             if today.month < birthday.month or (today.month == birthday.month and today.day < birthday.day):
                 years -= 1
-            
+            print(f'Today: {today} | Birthday: {birthday} | Years: {years}')
+
             if years < 13:
                 errors['birth_date'] = "You must be over 13 to register."
 
@@ -50,9 +51,12 @@ class User(models.Model):
     # id INT
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
-    birth_date = models.DateTimeField(default=datetime.now)
+    birth_date = models.DateTimeField(default=datetime.date.today)
     email = models.EmailField(max_length=255)
     password = models.CharField(max_length=255)
+    #created_at = models.DateTimeField(auto_now_add = True)
+    #updated_at = models.DateTimeField(auto_now = True)
+
     objects = UserManager()
 
     def __str__(self):
